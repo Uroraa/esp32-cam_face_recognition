@@ -46,7 +46,7 @@ A real-time face recognition system using an ESP32-CAM camera with advanced live
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/Uroraa/esp32-cam_face_recognition
 cd esp32-cam_face_recognition
 ```
 
@@ -64,7 +64,7 @@ pip install opencv-python numpy insightface mediapipe scikit-learn scipy
 
 ### Step 1: Prepare Reference Face Images
 1. Place clear face images in the `ex_faces/` directory
-2. Name files as `{person_name}.jpg` (e.g., `john_doe.jpg`, `jane_smith.jpg`)
+2. Name files as `{person_name}.jpg` 
 3. Ensure each image contains a single, clear face
 
 ### Step 2: Generate Face Embeddings
