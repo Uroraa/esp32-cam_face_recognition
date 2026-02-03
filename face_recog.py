@@ -3,13 +3,10 @@ import numpy as np
 import threading, time
 from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
-import os
 import mediapipe as mp
 from scipy.spatial import distance as dist
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
 
-ESP32_URL = "http://172.17.12.184:81/stream"
+ESP32_URL = "http://YOUR_ESP32_IP:81/stream"   # Change to your ESP32-CAM's IP
 
 app = FaceAnalysis(name="buffalo_sc", providers=['CPUExecutionProvider'])
 app.prepare(ctx_id=0, det_size=(640, 640))
@@ -17,7 +14,7 @@ app.prepare(ctx_id=0, det_size=(640, 640))
 data = np.load("known_faces.npz", allow_pickle=True)
 known_names = data["names"].tolist()
 known_embeddings = data["embeddings"]
-print(f"Đã nạp {len(known_names)} khuôn mặt mẫu")
+print(f"Loaded {len(known_names)} known faces")
 
 mp_face = mp.solutions.face_mesh.FaceMesh(
     max_num_faces=1,
@@ -30,10 +27,9 @@ LEFT_EYE = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE = [263, 387, 385, 362, 380, 373]
 
 ACTIONS = ["BLINK", "TURN_LEFT", "TURN_RIGHT", "TILT", "MOUTH_OPEN", "LOOK_UP", "LOOK_DOWN"]
-             
-#ACTIONS = ["TURN_LEFT", "TURN_RIGHT"]
 
-current_action = np.random.choice(ACTIONS)
+action_index = 0
+current_action = ACTIONS[action_index]
 action_verified = False   
 next_action_delay = False       
 next_action_time = 0            
@@ -107,7 +103,7 @@ latest_frame = None
 running = True
 
 if not cap.isOpened():
-    print("Không mở được luồng video từ ESP32")
+    print("Cannot open ESP32-CAM stream")
     exit()
 
 def capture_thread():
@@ -186,20 +182,17 @@ while True:
             if current_action == "MOUTH_OPEN" and mouth_dist > 30:
                 action_verified_now = True
 
-            # Smile
-            '''left_m = lm.landmark[61]
-            right_m = lm.landmark[291]
-            mouth_w = abs((right_m.x - left_m.x) * w)
-
-            if current_action == "SMILE" and mouth_w > 65:
-                action_verified_now = True'''
-
     if action_verified_now and not next_action_delay:
         next_action_delay = True
         next_action_time = time.time() + DELAY_AFTER_SUCCESS
 
     if next_action_delay and time.time() >= next_action_time:
-        current_action = np.random.choice(ACTIONS)
+        action_index += 1
+
+        if action_index >= len(ACTIONS):
+            action_index = 0      
+
+        current_action = ACTIONS[action_index]
         last_action_time = time.time()
         next_action_delay = False
         print("[NEW ACTION] →", current_action)
@@ -241,8 +234,6 @@ while True:
         point_value = roll
     elif current_action == "MOUTH_OPEN":
         point_value = mouth_dist
-    '''elif current_action == "SMILE":
-        point_value = mouth_w'''
 
     if point_value is not None:
         cv2.putText(frame, f"Point: {point_value:.2f}",

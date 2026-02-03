@@ -8,8 +8,8 @@ app.prepare(ctx_id=0)
 known_names = []
 known_embeddings = []
 
-for file in os.listdir("faces"):
-    path = os.path.join("faces", file)
+for file in os.listdir("ex_faces"):
+    path = os.path.join("ex_faces", file)
     name = os.path.splitext(file)[0]
     img = cv2.imread(path)
     faces = app.get(img)
