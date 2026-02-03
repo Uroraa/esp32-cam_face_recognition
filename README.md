@@ -130,7 +130,7 @@ The live display shows:
 - **Face name and score**: Recognized person with confidence (0.0-1.0)
 - **Current action**: Next action to perform for liveness check
 - **Point value**: Current metric value for the active action
-![alt text](image.png)
+![Demo](.assets/image.png)
 
 ## Advanced Usage
 
